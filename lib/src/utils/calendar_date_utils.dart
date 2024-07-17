@@ -3,58 +3,6 @@ import 'package:intl/intl.dart';
 class CalendarDateUtils {
   CalendarDateUtils._();
 
-  static String getWeekDayString(int weekday, {bool abbreviated = true}) {
-    switch(weekday) {
-      case DateTime.monday:
-        return abbreviated ? "Mo" : "Montag";
-      case DateTime.tuesday:
-        return abbreviated ? "Di" : "Dienstag";
-      case DateTime.wednesday:
-        return abbreviated ? "Mi" : "Mittwoch";
-      case DateTime.thursday:
-        return abbreviated ? "Do" : "Donnerstag";
-      case DateTime.friday:
-        return abbreviated ? "Fr" : "Freitag";
-      case DateTime.saturday:
-        return abbreviated ? "Sa" : "Samstag";
-      case DateTime.sunday:
-        return abbreviated ? "So" : "Sonntag";
-      default:
-        return "";
-    }
-  }
-
-  static String getMonthString(int month) {
-    switch(month) {
-      case DateTime.january:
-        return "Januar";
-      case DateTime.february:
-        return "Februar";
-      case DateTime.march:
-        return "März";
-      case DateTime.april:
-        return "April";
-      case DateTime.may:
-        return "Mai";
-      case DateTime.june:
-        return "Juni";
-      case DateTime.july:
-        return "Juli";
-      case DateTime.august:
-        return "August";
-      case DateTime.september:
-        return "September";
-      case DateTime.october:
-        return "Oktober";
-      case DateTime.november:
-        return "November";
-      case DateTime.december:
-        return "Dezember";
-      default:
-        return "";
-    }
-  }
-
   /// Calculates number of weeks for a given year as per https://en.wikipedia.org/wiki/ISO_week_date#Weeks_per_year
   static int _numOfWeeks(int year) {
     DateTime dec28 = DateTime(year, 12, 28);
@@ -81,7 +29,7 @@ class CalendarDateUtils {
     var currentDate = firstDate;
     while(currentDate.isBefore(lastDate) || (currentDate.day == lastDate.day && currentDate.month == lastDate.month && currentDate.year == lastDate.year && currentDate.hour <= 1)) {
       monthDateTimes.add(currentDate);
-      currentDate = currentDate.add(const Duration(days: 1));
+      currentDate = DateTime(currentDate.year, currentDate.month, currentDate.day + 1);
     }
     return monthDateTimes;
   }

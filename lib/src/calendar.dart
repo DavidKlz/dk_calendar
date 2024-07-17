@@ -31,9 +31,11 @@ class Calendar extends StatefulWidget {
 
 class _CalendarState extends State<Calendar> {
   DateTime displayDate = DateTime.now();
+  CalendarView currentView = CalendarView.month;
 
   @override
   void initState() {
+    currentView = widget.view;
     displayDate = widget.displayDate;
     super.initState();
   }
@@ -46,11 +48,12 @@ class _CalendarState extends State<Calendar> {
           (widget.header != null)
               ? widget.header!
               : CalendarHeader(
-                  view: widget.view,
+                  view: currentView,
                   date: displayDate,
                   onLeftPressed: _previousMonth,
                   onRightPressed: _nextMonth,
                   onTodayPressed: _jumpToToday,
+                  onSelectView: _changeView,
                 ),
         Expanded(child: _getView()),
       ],
@@ -58,9 +61,11 @@ class _CalendarState extends State<Calendar> {
   }
 
   Widget _getView() {
-    switch (widget.view) {
+    switch (currentView) {
       case CalendarView.day:
-        return CalendarDayView();
+        return CalendarDayView(
+          displayDate: displayDate,
+        );
       case CalendarView.week:
         return CalendarWeekView();
       case CalendarView.month:
@@ -71,10 +76,14 @@ class _CalendarState extends State<Calendar> {
       case CalendarView.timelineDay:
       // TODO: Handle this case.
       case CalendarView.timelineWeek:
-      // TODO: Handle this case.
-      case CalendarView.timelineMonth:
         // TODO: Handle this case.
         return CalendarWeekView();
+    }
+  }
+
+  void _changeView(CalendarView? newView) {
+    if (newView != null) {
+      setState(() => currentView = newView);
     }
   }
 

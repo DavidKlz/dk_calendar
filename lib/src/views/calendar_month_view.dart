@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 
 import '../data/calendar_entry.dart';
 import '../utils/calendar_date_utils.dart';
+import '../utils/enums/weekday.dart';
 
 class CalendarMonthView extends StatefulWidget {
   const CalendarMonthView({
     required this.entries,
     required this.displayDate,
     this.showCalendarWeek = false,
+    this.showDays = true,
     this.padding = const EdgeInsets.all(8),
     this.entryPadding = const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
     this.dayMarkColor = Colors.blueAccent,
@@ -19,6 +21,7 @@ class CalendarMonthView extends StatefulWidget {
   final Map<DateTime, List<CalendarEntry>> entries;
   final DateTime displayDate;
   final bool showCalendarWeek;
+  final bool showDays;
   final EdgeInsets padding;
   final EdgeInsets entryPadding;
   final Color dayMarkColor;
@@ -28,8 +31,6 @@ class CalendarMonthView extends StatefulWidget {
 }
 
 class _CalendarMonthViewState extends State<CalendarMonthView> {
-  List<DateTime> dates = [];
-  List<int> calendarWeek = [];
   bool isDragging = false;
   Size colSize = const Size(0, 0);
 
@@ -37,71 +38,51 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
       (date: null, entry: null);
 
   @override
-  void initState() {
-    super.initState();
-    dates = CalendarDateUtils.getMonthDateTimesFor(widget.displayDate);
-    if (dates.length % 7 != 0) {
-      throw Exception(
-          "Missing weekdays: ${dates.length} | First Date: ${dates[0].toIso8601String()} | Last Date: ${dates[dates.length - 1].toIso8601String()}");
-    }
-    var iterations = dates.length / 7;
-    for (int i = 0; i < iterations; i++) {
-      calendarWeek.add(CalendarDateUtils.getWeekNumber(dates[i + 7 * i]));
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (_, constraints) {
-        colSize = Size(constraints.maxWidth / 7,
-            constraints.maxHeight / (dates.length / 7));
+        var dates = CalendarDateUtils.getMonthDateTimesFor(widget.displayDate);
 
-        Map<int, TableColumnWidth> columnWidths = {
-          0: const IntrinsicColumnWidth(),
-        };
-
-        for (int i = 1; i <= dates.length / 7; i++) {
-          columnWidths.putIfAbsent(
-            i,
-            () => const FlexColumnWidth(),
-          );
-        }
+        colSize = Size(
+          constraints.maxWidth / 7,
+          constraints.maxHeight / (dates.length / 7),
+        );
 
         return MouseRegion(
           cursor:
               isDragging ? SystemMouseCursors.move : SystemMouseCursors.basic,
           child: Table(
-            columnWidths: columnWidths,
+            columnWidths: const {0: IntrinsicColumnWidth()},
             border: TableBorder.all(color: Colors.grey, width: 0.5),
-            children: _createRows(),
+            children: _createRows(dates),
           ),
         );
       },
     );
   }
 
-  List<TableRow> _createRows() {
+  List<TableRow> _createRows(List<DateTime> dates) {
     List<TableRow> rows = [];
 
     for (int i = 0; i < dates.length / 7; i++) {
       Iterable<DateTime> take = dates.getRange(0 + 7 * i, 7 + 7 * i);
-
       List<Widget> children = [];
 
-      children.add(
-        TableCell(
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.2),
+      if(widget.showCalendarWeek) {
+        var weekNumber = CalendarDateUtils.getWeekNumber(take.first);
+        children.add(
+          TableCell(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.2),
+              ),
+              height: colSize.height,
+              padding: const EdgeInsets.all(8.0),
+              child: Text("$weekNumber"),
             ),
-            height: colSize.height,
-            padding: const EdgeInsets.all(8.0),
-            margin: EdgeInsets.fromLTRB(0, (i == 0) ? 8 : 0, 0, (i * 7 == dates.length) ? 8 : 0),
-            child: Text("${calendarWeek[i]}"),
           ),
-        ),
-      );
+        );
+      }
 
       children.addAll(take.map(
         (e) => TableCell(
@@ -118,7 +99,7 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
     return rows;
   }
 
-  DragTarget<CalendarEntry> _createDragTarget(DateTime e, bool showDayString) {
+  DragTarget<CalendarEntry> _createDragTarget(DateTime e, bool inFirstRow) {
     var target = DragTarget<CalendarEntry>(
       onAcceptWithDetails: (details) => _onAcceptEntry(e, details),
       onMove: (details) => _onMove(e, details),
@@ -130,7 +111,7 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
             padding: widget.padding,
             child: Column(
               children: [
-                if (showDayString) _addDayHeader(e),
+                if (inFirstRow && widget.showDays) _addDayHeader(e),
                 _createDayText(e),
                 SizedBox(height: widget.padding.top / 2),
                 _createEntries(e),
@@ -144,7 +125,7 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
   }
 
   Widget _addDayHeader(DateTime date) {
-    return Text(CalendarDateUtils.getWeekDayString(date.weekday));
+    return Text(Weekday.getAbbreviatedWeekday(date.weekday));
   }
 
   Widget _createDayText(DateTime date) {
