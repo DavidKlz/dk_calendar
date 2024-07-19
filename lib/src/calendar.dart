@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'data/calendar_entry.dart';
 import 'utils/enums/calendar_view.dart';
-import 'views/calendar_day_view.dart';
+import 'views/day_view/calendar_day_view.dart';
 import 'views/calendar_month_view.dart';
 import 'views/calendar_week_view.dart';
-import 'views/widgets/calendar_header.dart';
+import 'commons/calendar_header.dart';
 
 // TODO: !! DO INTERNATIONALIZATION (⌐■_■) !!
 
@@ -44,28 +44,39 @@ class _CalendarState extends State<Calendar> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        if (widget.showHeader)
-          (widget.header != null)
-              ? widget.header!
-              : CalendarHeader(
-                  view: currentView,
-                  date: displayDate,
-                  onLeftPressed: _previousDate,
-                  onRightPressed: _nextDate,
-                  onTodayPressed: _jumpToToday,
-                  onSelectView: _changeView,
-                ),
-        Expanded(child: _getView()),
-      ],
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      return Column(
+        children: [
+          if (widget.showHeader)
+            (widget.header != null)
+                ? SizedBox(
+                    height: constraints.maxHeight * 0.1, child: widget.header!)
+                : SizedBox(
+                    height: constraints.maxHeight * 0.1,
+                    child: CalendarHeader(
+                      view: currentView,
+                      date: displayDate,
+                      onLeftPressed: _previousDate,
+                      onRightPressed: _nextDate,
+                      onTodayPressed: _jumpToToday,
+                      onSelectView: _changeView,
+                    ),
+                  ),
+          SizedBox(
+            width: constraints.maxWidth,
+            height: constraints.maxHeight * 0.9,
+            child: _getView(),
+          ),
+        ],
+      );
+    });
   }
 
   Widget _getView() {
     switch (currentView) {
       case CalendarView.day:
         return CalendarDayView(
+          entries: [CalendarEntry(name: "Test")],
           displayDate: displayDate,
         );
       case CalendarView.week:

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../utils/calendar_date_utils.dart';
-import '../../utils/enums/calendar_view.dart';
-import '../../utils/enums/month.dart';
+import '../utils/calendar_date_utils.dart';
+import '../utils/enums/calendar_view.dart';
+import '../utils/enums/month.dart';
 
 class CalendarHeader extends StatefulWidget {
   const CalendarHeader({

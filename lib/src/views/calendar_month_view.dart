@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../data/calendar_entry.dart';
 import '../utils/calendar_date_utils.dart';
 import '../utils/enums/weekday.dart';
-import 'widgets/filled_calendar_entry.dart';
+import '../commons/filled_calendar_entry.dart';
 
 class CalendarMonthView extends StatefulWidget {
   const CalendarMonthView({
@@ -28,10 +28,10 @@ class CalendarMonthView extends StatefulWidget {
   final EdgeInsets padding;
   final EdgeInsets entryPadding;
   final Color dayMarkColor;
+
   // TODO: Make the entries fully configurable
   final Widget Function(CalendarEntry entry)? entryBuilder;
   final Widget Function(CalendarEntry entry)? dropIndicatorBuilder;
-
 
   @override
   State<CalendarMonthView> createState() => _CalendarMonthViewState();
@@ -76,7 +76,7 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
       Iterable<DateTime> take = dates.getRange(0 + 7 * i, 7 + 7 * i);
       List<Widget> children = [];
 
-      if(widget.showCalendarWeek) {
+      if (widget.showCalendarWeek) {
         var weekNumber = CalendarDateUtils.getWeekNumber(take.first);
         children.add(
           TableCell(
@@ -187,8 +187,17 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
           onDraggableCanceled: (velocity, offset) => _dragEnd(),
           dragAnchorStrategy: pointerDragAnchorStrategy,
           feedback: const SizedBox(),
-          childWhenDragging: FilledCalendarEntry(entry: entry, padding: widget.entryPadding, opacity: 0.5,),
-          child: FilledCalendarEntry(entry: entry, padding: widget.entryPadding,),
+          childWhenDragging: FilledCalendarEntry(
+            entry: entry,
+            padding: widget.entryPadding,
+            opacity: 0.5,
+            width: colSize.width,
+          ),
+          child: FilledCalendarEntry(
+            entry: entry,
+            padding: widget.entryPadding,
+            width: colSize.width,
+          ),
         ));
       }
     }
@@ -197,7 +206,12 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
       draggableEntries.add(Draggable<CalendarEntry>(
         data: draggedRecord.entry,
         feedback: const SizedBox(),
-        child: FilledCalendarEntry(entry: draggedRecord.entry!, padding: widget.entryPadding, opacity: 0.5,),
+        child: FilledCalendarEntry(
+          entry: draggedRecord.entry!,
+          padding: widget.entryPadding,
+          opacity: 0.5,
+          width: colSize.width,
+        ),
       ));
     }
     return Column(children: draggableEntries);
