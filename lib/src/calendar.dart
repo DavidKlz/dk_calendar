@@ -7,6 +7,8 @@ import 'views/calendar_month_view.dart';
 import 'views/calendar_week_view.dart';
 import 'views/widgets/calendar_header.dart';
 
+// TODO: !! DO INTERNATIONALIZATION (⌐■_■) !!
+
 class Calendar extends StatefulWidget {
   Calendar({
     required this.view,
@@ -50,8 +52,8 @@ class _CalendarState extends State<Calendar> {
               : CalendarHeader(
                   view: currentView,
                   date: displayDate,
-                  onLeftPressed: _previousMonth,
-                  onRightPressed: _nextMonth,
+                  onLeftPressed: _previousDate,
+                  onRightPressed: _nextDate,
                   onTodayPressed: _jumpToToday,
                   onSelectView: _changeView,
                 ),
@@ -81,6 +83,32 @@ class _CalendarState extends State<Calendar> {
     }
   }
 
+  _nextDate() {
+    switch (currentView) {
+      case CalendarView.day:
+      case CalendarView.timelineDay:
+        _nextDay();
+      case CalendarView.week:
+      case CalendarView.timelineWeek:
+        _nextWeek();
+      case CalendarView.month:
+        _nextMonth();
+    }
+  }
+
+  _previousDate() {
+    switch (currentView) {
+      case CalendarView.day:
+      case CalendarView.timelineDay:
+        _previousDay();
+      case CalendarView.week:
+      case CalendarView.timelineWeek:
+        _previousWeek();
+      case CalendarView.month:
+        _previousMonth();
+    }
+  }
+
   void _changeView(CalendarView? newView) {
     if (newView != null) {
       setState(() => currentView = newView);
@@ -93,14 +121,50 @@ class _CalendarState extends State<Calendar> {
     });
   }
 
-  void _nextMonth() {
+  _nextDay() {
+    setState(() {
+      displayDate = DateTime(displayDate.year, displayDate.month,
+          displayDate.day + 1, displayDate.hour, displayDate.minute);
+    });
+  }
+
+  _previousDay() {
+    setState(() {
+      displayDate = DateTime(displayDate.year, displayDate.month,
+          displayDate.day - 1, displayDate.hour, displayDate.minute);
+    });
+  }
+
+  _nextWeek() {
+    setState(() {
+      displayDate = DateTime(
+          displayDate.year,
+          displayDate.month,
+          displayDate.day + DateTime.daysPerWeek,
+          displayDate.hour,
+          displayDate.minute);
+    });
+  }
+
+  _previousWeek() {
+    setState(() {
+      displayDate = DateTime(
+          displayDate.year,
+          displayDate.month,
+          displayDate.day - DateTime.daysPerWeek,
+          displayDate.hour,
+          displayDate.minute);
+    });
+  }
+
+  _nextMonth() {
     setState(() {
       displayDate = DateTime(displayDate.year, displayDate.month + 1,
           displayDate.day, displayDate.hour, displayDate.minute);
     });
   }
 
-  void _previousMonth() {
+  _previousMonth() {
     setState(() {
       displayDate = DateTime(displayDate.year, displayDate.month - 1,
           displayDate.day, displayDate.hour, displayDate.minute);

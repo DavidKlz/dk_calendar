@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../data/calendar_entry.dart';
 import '../utils/calendar_date_utils.dart';
 import '../utils/enums/weekday.dart';
+import 'widgets/filled_calendar_entry.dart';
 
 class CalendarMonthView extends StatefulWidget {
   const CalendarMonthView({
@@ -15,6 +16,8 @@ class CalendarMonthView extends StatefulWidget {
     this.padding = const EdgeInsets.all(8),
     this.entryPadding = const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
     this.dayMarkColor = Colors.blueAccent,
+    this.entryBuilder,
+    this.dropIndicatorBuilder,
     super.key,
   });
 
@@ -25,6 +28,10 @@ class CalendarMonthView extends StatefulWidget {
   final EdgeInsets padding;
   final EdgeInsets entryPadding;
   final Color dayMarkColor;
+  // TODO: Make the entries fully configurable
+  final Widget Function(CalendarEntry entry)? entryBuilder;
+  final Widget Function(CalendarEntry entry)? dropIndicatorBuilder;
+
 
   @override
   State<CalendarMonthView> createState() => _CalendarMonthViewState();
@@ -48,6 +55,7 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
           constraints.maxHeight / (dates.length / 7),
         );
 
+        // TODO: Add Keyboard Listener to cancel drag via ESC
         return MouseRegion(
           cursor:
               isDragging ? SystemMouseCursors.move : SystemMouseCursors.basic,
@@ -167,6 +175,7 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
   }
 
   Widget _createEntries(DateTime dateTime) {
+    // TODO: Make the entries fully configurable
     List<Draggable> draggableEntries = [];
     if (widget.entries[dateTime] != null) {
       for (var entry in widget.entries[dateTime]!) {
@@ -178,31 +187,8 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
           onDraggableCanceled: (velocity, offset) => _dragEnd(),
           dragAnchorStrategy: pointerDragAnchorStrategy,
           feedback: const SizedBox(),
-          child: Container(
-            padding: widget.entryPadding,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: entry.color,
-            ),
-            width: double.infinity,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  entry.name,
-                  style: entry.textStyle,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Icon(
-                    entry.trailingIcon,
-                    color: entry.trailingIconColor,
-                    size: 15,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          childWhenDragging: FilledCalendarEntry(entry: entry, padding: widget.entryPadding, opacity: 0.5,),
+          child: FilledCalendarEntry(entry: entry, padding: widget.entryPadding,),
         ));
       }
     }
@@ -211,18 +197,7 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
       draggableEntries.add(Draggable<CalendarEntry>(
         data: draggedRecord.entry,
         feedback: const SizedBox(),
-        child: Container(
-          padding: widget.entryPadding,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: draggedRecord.entry!.color.withOpacity(0.5),
-          ),
-          width: double.infinity,
-          child: Text(
-            draggedRecord.entry!.name,
-            style: draggedRecord.entry!.textStyle,
-          ),
-        ),
+        child: FilledCalendarEntry(entry: draggedRecord.entry!, padding: widget.entryPadding, opacity: 0.5,),
       ));
     }
     return Column(children: draggableEntries);

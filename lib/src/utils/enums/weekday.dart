@@ -1,11 +1,11 @@
 enum Weekday {
-  monday("Monday", "Mon"),
-  tuesday("Tuesday", "Tue"),
-  wednesday("Wednesday", "Wed"),
-  thursday("Thursday", "Thu"),
-  friday("Friday", "Fri"),
-  saturday("Saturday", "Sat"),
-  sunday("Sunday", "Sun");
+  monday("Monday", "MON"),
+  tuesday("Tuesday", "TUE"),
+  wednesday("Wednesday", "WED"),
+  thursday("Thursday", "THU"),
+  friday("Friday", "FRI"),
+  saturday("Saturday", "SAT"),
+  sunday("Sunday", "SUN");
 
   final String displayName;
   final String abbreviatedDisplayName;

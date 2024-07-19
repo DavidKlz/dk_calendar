@@ -35,7 +35,6 @@ class _CalendarHeaderState extends State<CalendarHeader> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
-            mainAxisSize: MainAxisSize.max,
             children: [
               OutlinedButton(
                 onPressed: widget.onTodayPressed,
