@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 class CalendarEntry {
   String name;
+  DateTime startDate;
+  DateTime? endDate;
   Color color;
   TextStyle textStyle;
   DateTime? repeatInfo;
@@ -10,6 +12,8 @@ class CalendarEntry {
 
   CalendarEntry({
     required this.name,
+    required this.startDate,
+    this.endDate,
     this.color = Colors.blueAccent,
     this.textStyle = const TextStyle(color: Colors.white),
     this.repeatInfo,

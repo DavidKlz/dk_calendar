@@ -2,8 +2,6 @@ import 'package:dk_calendar/dk_calendar.dart';
 import 'package:flutter/material.dart';
 
 import '../../commons/filled_calendar_entry.dart';
-import '../../utils/calendar_date_utils.dart';
-import '../../utils/enums/weekday.dart';
 import 'day_view_date.dart';
 import 'line_painter.dart';
 
@@ -12,7 +10,7 @@ class CalendarDayView extends StatefulWidget {
     required this.entries,
     required this.displayDate,
     this.dayMarkColor = Colors.blueAccent,
-    this.hourSpace = 48,
+    this.hourSpace = 45,
     super.key,
   });
 
@@ -29,8 +27,13 @@ class _CalendarDayViewState extends State<CalendarDayView> {
   Map<CalendarEntry, double> entryDragPosition = {};
   Map<CalendarEntry, double> entryCurrentPositions = {};
 
+  double draggedItemPosition = 0;
+
+  double quarterHourSpace = 0;
+
   @override
   Widget build(BuildContext context) {
+    quarterHourSpace = widget.hourSpace / 4;
     return LayoutBuilder(builder: (context, constraints) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
@@ -70,10 +73,16 @@ class _CalendarDayViewState extends State<CalendarDayView> {
   List<Widget> _createEntries(double width) {
     return widget.entries.map(
       (e) {
-        entryDragPosition.putIfAbsent(
-          e,
-          () => 50,
-        );
+        if (e.endDate != null) {
+          entryDragPosition.putIfAbsent(
+            e,
+            () =>
+                widget.hourSpace *
+                ((e.endDate!.hour * 60 + e.endDate!.minute) / 60),
+          );
+        } else {
+          // TODO: all day event
+        }
         return Positioned(
           top: entryDragPosition[e],
           child: GestureDetector(
@@ -85,6 +94,8 @@ class _CalendarDayViewState extends State<CalendarDayView> {
               padding: const EdgeInsets.all(8),
               entry: e,
               width: width,
+              showTime: true,
+              hourSpace: widget.hourSpace,
             ),
           ),
         );
@@ -93,6 +104,7 @@ class _CalendarDayViewState extends State<CalendarDayView> {
   }
 
   _dragStart(CalendarEntry entry, DragStartDetails details) {
+    draggedItemPosition = entryDragPosition[entry]!;
     entryCurrentPositions.putIfAbsent(
       entry,
       () => entryDragPosition[entry]!,
@@ -103,7 +115,10 @@ class _CalendarDayViewState extends State<CalendarDayView> {
     setState(() {
       entryDragPosition.update(
         entry,
-        (value) => value += details.delta.dy,
+        (value) {
+          draggedItemPosition = draggedItemPosition + details.delta.dy;
+          return _getClosesSnappingPoint();
+        },
       );
     });
   }
@@ -116,9 +131,13 @@ class _CalendarDayViewState extends State<CalendarDayView> {
     setState(() {
       entryDragPosition.update(
         entry,
-        (value) => value = entryCurrentPositions[entry]!,
+        (value) => value = entryCurrentPositions[entry] ?? value,
       );
       entryCurrentPositions.remove(entry);
     });
+  }
+
+  double _getClosesSnappingPoint() {
+    return quarterHourSpace * (draggedItemPosition / quarterHourSpace).round();
   }
 }

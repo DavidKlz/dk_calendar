@@ -8,8 +8,8 @@ class LinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-        ..color = Colors.grey
-        ..strokeWidth = 0.5;
+        ..color = Colors.black
+        ..strokeWidth = 0.1;
 
     for(var i = 0; i < 25; i++) {
       final dy = i * space;

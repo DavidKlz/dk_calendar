@@ -13,17 +13,17 @@ class Calendar extends StatefulWidget {
   Calendar({
     required this.view,
     DateTime? displayDate,
-    Map<DateTime, List<CalendarEntry>>? entries,
+    List<CalendarEntry>? entries,
     this.showHeader = true,
     this.header,
     super.key,
-  })  : entries = entries ?? {},
+  })  : entries = entries ?? [],
         displayDate = displayDate ?? DateTime.now();
 
   final DateTime displayDate;
   final bool showHeader;
   final Widget? header;
-  final Map<DateTime, List<CalendarEntry>> entries;
+  final List<CalendarEntry> entries;
 
   final CalendarView view;
 
@@ -76,7 +76,7 @@ class _CalendarState extends State<Calendar> {
     switch (currentView) {
       case CalendarView.day:
         return CalendarDayView(
-          entries: [CalendarEntry(name: "Test")],
+          entries: [CalendarEntry(name: "Test", startDate: DateTime(2024, 7, 20, 16), endDate: DateTime(2024, 7, 20, 16, 15))],
           displayDate: displayDate,
         );
       case CalendarView.week:

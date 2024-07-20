@@ -27,11 +27,15 @@ class CalendarDateUtils {
     var firstDate = _findFirstDateOfTheWeek(_findFirstDateOfTheMonth(dateTime));
     var lastDate = _findLastDateOfTheWeek(_findLastDateOfTheMonth(dateTime));
     var currentDate = firstDate;
-    while(currentDate.isBefore(lastDate) || (currentDate.day == lastDate.day && currentDate.month == lastDate.month && currentDate.year == lastDate.year && currentDate.hour <= 1)) {
+    while(currentDate.isBefore(lastDate) || (isSameDay(currentDate, lastDate) && currentDate.hour <= 1)) {
       monthDateTimes.add(currentDate);
       currentDate = DateTime(currentDate.year, currentDate.month, currentDate.day + 1);
     }
     return monthDateTimes;
+  }
+
+  static bool isSameDay(DateTime date1, date2) {
+    return (date1.day == date2.day && date1.month == date2.month && date1.year == date2.year);
   }
 
   static DateTime _findFirstDateOfTheWeek(DateTime dateTime) {

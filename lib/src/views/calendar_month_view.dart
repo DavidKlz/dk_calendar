@@ -21,7 +21,7 @@ class CalendarMonthView extends StatefulWidget {
     super.key,
   });
 
-  final Map<DateTime, List<CalendarEntry>> entries;
+  final List<CalendarEntry> entries;
   final DateTime displayDate;
   final bool showCalendarWeek;
   final bool showDays;
@@ -177,8 +177,7 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
   Widget _createEntries(DateTime dateTime) {
     // TODO: Make the entries fully configurable
     List<Draggable> draggableEntries = [];
-    if (widget.entries[dateTime] != null) {
-      for (var entry in widget.entries[dateTime]!) {
+      for (var entry in widget.entries.where((element) => CalendarDateUtils.isSameDay(dateTime, element.startDate),)) {
         draggableEntries.add(Draggable<CalendarEntry>(
           data: entry,
           onDragStarted: () => setState(() => isDragging = true),
@@ -200,7 +199,6 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
           ),
         ));
       }
-    }
     if (draggedRecord.date != null &&
         draggedRecord.date!.isAtSameMomentAs(dateTime)) {
       draggableEntries.add(Draggable<CalendarEntry>(
@@ -226,24 +224,8 @@ class _CalendarMonthViewState extends State<CalendarMonthView> {
 
   _onAcceptEntry(DateTime dateTime, DragTargetDetails<CalendarEntry> details) {
     setState(() {
-      widget.entries.values
-          .where(
-            (element) => element.contains(details.data),
-          )
-          .forEach(
-            (element) => element.remove(details.data),
-          );
-      if (widget.entries.containsKey(dateTime)) {
-        widget.entries.update(
-          dateTime,
-          (value) {
-            value.add(details.data);
-            return value;
-          },
-        );
-      } else {
-        widget.entries.putIfAbsent(dateTime, () => [details.data]);
-      }
+      var entry = widget.entries.where((e) => e == details.data).first;
+      entry.startDate = DateTime(dateTime.year, dateTime.month, dateTime.day, entry.startDate.hour, entry.startDate.minute);
     });
   }
 

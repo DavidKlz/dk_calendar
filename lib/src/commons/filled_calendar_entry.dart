@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../data/calendar_entry.dart';
 
@@ -7,6 +8,7 @@ class FilledCalendarEntry extends StatelessWidget {
     required this.entry,
     required this.padding,
     required this.width,
+    this.hourSpace,
     this.opacity = 1,
     this.showTime = false,
     super.key,
@@ -16,35 +18,65 @@ class FilledCalendarEntry extends StatelessWidget {
   final EdgeInsets padding;
   final double opacity;
   final double width;
+  final double? hourSpace;
   final bool showTime;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: padding,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        color: entry.color.withOpacity(opacity),
-      ),
-      width: width,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            entry.name,
-            style: entry.textStyle,
-          ),
-          if (entry.trailingIcon != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Icon(
-                entry.trailingIcon,
-                color: entry.trailingIconColor,
-                size: 15,
-              ),
+    return GestureDetector(
+      onTap: () {},
+      child: Container(
+        padding: EdgeInsets.fromLTRB(padding.left, 2, padding.right, 2),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: entry.color.withOpacity(opacity),
+        ),
+        width: width,
+        height: (hourSpace != null) ? _calculateHeight() : null,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Wrap(
+              direction: Axis.vertical,
+              runSpacing: 8,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    entry.name,
+                    style: entry.textStyle,
+                  ),
+                ),
+                if (showTime)
+                  FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "${DateFormat('HH:mm').format(entry.startDate)}${(entry.endDate != null) ? " - ${DateFormat('HH:mm').format(entry.endDate!)}" : ""}",
+                        style: entry.textStyle,
+                      )),
+              ],
             ),
-        ],
+            if (entry.trailingIcon != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Icon(
+                  entry.trailingIcon,
+                  color: entry.trailingIconColor,
+                  size: 15,
+                ),
+              ),
+          ],
+        ),
       ),
     );
+  }
+
+  double _calculateHeight() {
+    return (entry.endDate != null)
+        ? hourSpace! *
+            (((entry.endDate!.hour * 60 + entry.endDate!.minute) -
+                    (entry.startDate.hour * 60 + entry.startDate.minute)) /
+                60)
+        : hourSpace! / 4;
   }
 }
