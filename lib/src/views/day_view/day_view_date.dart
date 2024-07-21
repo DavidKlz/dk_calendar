@@ -21,27 +21,22 @@ class DayViewDate extends StatelessWidget {
             color: dayMarkColor,
           ),
         ),
-        Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: dayMarkColor,
-              ),
-              height: 50,
-              width: 50,
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: dayMarkColor,
+          ),
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 3),
+          height: 50,
+          width: 50,
+          alignment: Alignment.center,
+          child: Text(
+            "${displayDate.day}",
+            style: const TextStyle(
+              fontSize: 28,
+              color: Colors.white,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.5, vertical: 3),
-              child: Text(
-                "${displayDate.day}",
-                style: const TextStyle(
-                  fontSize: 28,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
+          ),
         )
       ],
     );

@@ -26,7 +26,7 @@ class FilledCalendarEntry extends StatelessWidget {
     return GestureDetector(
       onTap: () {},
       child: Container(
-        padding: EdgeInsets.fromLTRB(padding.left, 2, padding.right, 2),
+        padding: EdgeInsets.fromLTRB(padding.left, _getHorizontalPadding(), padding.right, _getHorizontalPadding()),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           color: entry.color.withOpacity(opacity),
@@ -69,6 +69,18 @@ class FilledCalendarEntry extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  double _getHorizontalPadding() {
+    if(hourSpace == null) {
+      return 2;
+    } else {
+      if(_calculateHeight() > (hourSpace! / 2)) {
+        return 2;
+      } else {
+        return 0;
+      }
+    }
   }
 
   double _calculateHeight() {
