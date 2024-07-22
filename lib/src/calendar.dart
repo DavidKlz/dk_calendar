@@ -76,7 +76,7 @@ class _CalendarState extends State<Calendar> {
     switch (currentView) {
       case CalendarView.day:
         return CalendarDayView(
-          entries: [CalendarEntry(name: "Test", startDate: DateTime(2024, 7, 20, 16), endDate: DateTime(2024, 7, 20, 17, 00))],
+          entries: [CalendarEntry(name: "Test", startDate: DateTime(2024, 7, 20, 16), endDate: DateTime(2024, 7, 20, 17, 45))],
           displayDate: displayDate,
         );
       case CalendarView.week:

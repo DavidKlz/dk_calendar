@@ -1,5 +1,9 @@
+import 'dart:math';
+import 'dart:developer' as dev;
+
 import 'package:dk_calendar/dk_calendar.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../commons/filled_calendar_entry.dart';
 import 'day_view_date.dart';
@@ -24,9 +28,6 @@ class CalendarDayView extends StatefulWidget {
 }
 
 class _CalendarDayViewState extends State<CalendarDayView> {
-  Map<CalendarEntry, double> entryDragPosition = {};
-  Map<CalendarEntry, double> entryCurrentPositions = {};
-
   double draggedItemPosition = 0;
 
   double quarterHourSpace = 0;
@@ -38,11 +39,13 @@ class _CalendarDayViewState extends State<CalendarDayView> {
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             DayViewDate(
               displayDate: widget.displayDate,
               dayMarkColor: widget.dayMarkColor,
             ),
+            const SizedBox(height: 5),
             Expanded(
               flex: 1,
               child: SingleChildScrollView(
@@ -72,19 +75,9 @@ class _CalendarDayViewState extends State<CalendarDayView> {
 
   List<Widget> _createEntries(double width) {
     return widget.entries.map(
-      (e) {
-        if (e.endDate != null) {
-          entryDragPosition.putIfAbsent(
-            e,
-            () =>
-                widget.hourSpace *
-                ((e.endDate!.hour * 60 + e.endDate!.minute) / 60),
-          );
-        } else {
-          // TODO: all day event
-        }
+          (e) {
         return Positioned(
-          top: entryDragPosition[e],
+          top: _getEntryPosition(e),
           child: GestureDetector(
             onVerticalDragStart: (details) => _dragStart(e, details),
             onVerticalDragUpdate: (details) => _dragUpdate(e, details),
@@ -104,37 +97,30 @@ class _CalendarDayViewState extends State<CalendarDayView> {
   }
 
   _dragStart(CalendarEntry entry, DragStartDetails details) {
-    draggedItemPosition = entryDragPosition[entry]!;
-    entryCurrentPositions.putIfAbsent(
-      entry,
-      () => entryDragPosition[entry]!,
-    );
+    draggedItemPosition = _getEntryPosition(entry);
   }
 
   _dragUpdate(CalendarEntry entry, DragUpdateDetails details) {
     setState(() {
-      entryDragPosition.update(
-        entry,
-        (value) {
-          draggedItemPosition = draggedItemPosition + details.delta.dy;
-          return _getClosesSnappingPoint();
-        },
-      );
+      draggedItemPosition = draggedItemPosition + details.delta.dy;
+      double position = _getClosesSnappingPoint() - _getEntryPosition(entry);
+      var minutes = ((position / widget.hourSpace) * 60).round();
+      entry.startDate = entry.startDate.add(Duration(minutes: minutes));
+      entry.endDate = entry.endDate?.add(Duration(minutes: minutes));
     });
   }
 
   _dragEnd(CalendarEntry entry, DragEndDetails details) {
-    entryCurrentPositions.remove(entry);
+    // TODO
   }
 
   _dragCancel(CalendarEntry entry) {
-    setState(() {
-      entryDragPosition.update(
-        entry,
-        (value) => value = entryCurrentPositions[entry] ?? value,
-      );
-      entryCurrentPositions.remove(entry);
-    });
+    // TODO
+  }
+
+  double _getEntryPosition(CalendarEntry e) {
+    return widget.hourSpace *
+        ((e.startDate.hour * 60 + e.startDate.minute) / 60);
   }
 
   double _getClosesSnappingPoint() {

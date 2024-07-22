@@ -23,10 +23,11 @@ class FilledCalendarEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: () {},
       child: Container(
-        padding: EdgeInsets.fromLTRB(padding.left, _getHorizontalPadding(), padding.right, _getHorizontalPadding()),
+        padding: EdgeInsets.fromLTRB(padding.left, _getHorizontalPadding(),
+            padding.right, _getHorizontalPadding()),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           color: entry.color.withOpacity(opacity),
@@ -35,6 +36,7 @@ class FilledCalendarEntry extends StatelessWidget {
         height: (hourSpace != null) ? _calculateHeight() : null,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Wrap(
               direction: Axis.vertical,
@@ -72,10 +74,10 @@ class FilledCalendarEntry extends StatelessWidget {
   }
 
   double _getHorizontalPadding() {
-    if(hourSpace == null) {
+    if (hourSpace == null) {
       return 2;
     } else {
-      if(_calculateHeight() > (hourSpace! / 2)) {
+      if (_calculateHeight() > (hourSpace! / 2)) {
         return 2;
       } else {
         return 0;
@@ -85,10 +87,7 @@ class FilledCalendarEntry extends StatelessWidget {
 
   double _calculateHeight() {
     return (entry.endDate != null)
-        ? hourSpace! *
-            (((entry.endDate!.hour * 60 + entry.endDate!.minute) -
-                    (entry.startDate.hour * 60 + entry.startDate.minute)) /
-                60)
+        ? (hourSpace! / 60) * entry.endDate!.difference(entry.startDate).inMinutes
         : hourSpace! / 4;
   }
 }
