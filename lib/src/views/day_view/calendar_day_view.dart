@@ -3,7 +3,6 @@ import 'dart:developer' as dev;
 
 import 'package:dk_calendar/dk_calendar.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../commons/filled_calendar_entry.dart';
 import 'day_view_date.dart';
@@ -28,13 +27,11 @@ class CalendarDayView extends StatefulWidget {
 }
 
 class _CalendarDayViewState extends State<CalendarDayView> {
+  ScrollController controller = ScrollController();
   double draggedItemPosition = 0;
-
-  double quarterHourSpace = 0;
 
   @override
   Widget build(BuildContext context) {
-    quarterHourSpace = widget.hourSpace / 4;
     return LayoutBuilder(builder: (context, constraints) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
@@ -50,6 +47,7 @@ class _CalendarDayViewState extends State<CalendarDayView> {
               flex: 1,
               child: SingleChildScrollView(
                 scrollDirection: Axis.vertical,
+                controller: controller,
                 child: SizedBox(
                   width: constraints.maxWidth,
                   height: widget.hourSpace * 24,
@@ -75,7 +73,7 @@ class _CalendarDayViewState extends State<CalendarDayView> {
 
   List<Widget> _createEntries(double width) {
     return widget.entries.map(
-          (e) {
+      (e) {
         return Positioned(
           top: _getEntryPosition(e),
           child: GestureDetector(
@@ -101,13 +99,16 @@ class _CalendarDayViewState extends State<CalendarDayView> {
   }
 
   _dragUpdate(CalendarEntry entry, DragUpdateDetails details) {
+    draggedItemPosition = draggedItemPosition + details.delta.dy;
+    double position = _getClosesSnappingPoint() - _getEntryPosition(entry);
+    var minutes = ((position / widget.hourSpace) * 60).round();
+
     setState(() {
-      draggedItemPosition = draggedItemPosition + details.delta.dy;
-      double position = _getClosesSnappingPoint() - _getEntryPosition(entry);
-      var minutes = ((position / widget.hourSpace) * 60).round();
       entry.startDate = entry.startDate.add(Duration(minutes: minutes));
       entry.endDate = entry.endDate?.add(Duration(minutes: minutes));
     });
+
+    // TODO: scroll to correct place
   }
 
   _dragEnd(CalendarEntry entry, DragEndDetails details) {
@@ -124,6 +125,7 @@ class _CalendarDayViewState extends State<CalendarDayView> {
   }
 
   double _getClosesSnappingPoint() {
+    var quarterHourSpace = widget.hourSpace / 4;
     return quarterHourSpace * (draggedItemPosition / quarterHourSpace).round();
   }
 }
